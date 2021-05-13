@@ -3,9 +3,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.encore.rest.dao.ApimDao">
+<mapper namespace="com.encore.apim.dao.ApimDao">
 
-	<resultMap type="HashMap" id="StndMap" >
+	<sql id="pagingHeader">
+		SELECT *
+			FROM (SELECT ROWNUM AS RNUM, Z.*
+				FROM (
+	</sql>
+
+	<sql id="pagingFooter">
+				) Z
+				WHERE ROWNUM &lt;= (${limit} * ${page})
+			)
+		WHERE RNUM &gt;= ${limit} * (${page} - 1) + 1
+	</sql>
+
+	<resultMap type="HashMap" id="StndMap">
 		<id column="BSIF_ID" property="BSIF_ID" />
 		<id column="MDL_PATH" property="MDL_PATH" />
 		<id column="BSIF_SCMA" property="BSIF_SCMA" />
@@ -18,55 +31,50 @@
 		<id column="BASE_INFO_DSCR" property="BASE_INFO_DSCR" />
 		<id column="OWNER_DEPT_ID" property="OWNER_DEPT_ID" />
 		<id column="OWNER_DEPT_NM" property="OWNER_DEPT_NM" />
-		<id column="OWNER_DEPT_HEAD_EMP_ID" property="OWNER_DEPT_HEAD_EMP_ID" />
-		<id column="OWNER_DEPT_HEAD_EMP_NM" property="OWNER_DEPT_HEAD_EMP_NM" />
-		<id column="OWNER_DEPT_MNDT_EMP_ID" property="OWNER_DEPT_MNDT_EMP_ID" />
-		<id column="OWNER_DEPT_MNDT_EMP_NM" property="OWNER_DEPT_MNDT_EMP_NM" />	
+		<id column="OWNER_DEPT_HEAD_EMP_ID"
+			property="OWNER_DEPT_HEAD_EMP_ID" />
+		<id column="OWNER_DEPT_HEAD_EMP_NM"
+			property="OWNER_DEPT_HEAD_EMP_NM" />
+		<id column="OWNER_DEPT_MNDT_EMP_ID"
+			property="OWNER_DEPT_MNDT_EMP_ID" />
+		<id column="OWNER_DEPT_MNDT_EMP_NM"
+			property="OWNER_DEPT_MNDT_EMP_NM" />
 		<id column="ITSM_EMP_ID" property="ITSM_EMP_ID" />
 		<id column="ITSM_EMP_NM" property="ITSM_EMP_NM" />
 		<id column="REG_DT" property="REG_DT" />
 		<id column="MOD_DT" property="MOD_DT" />
 		<id column="BSIF_STRU_ID" property="BSIF_STRU_ID" />
 		<id column="BSIF_MDL_ID" property="BSIF_MDL_ID" />
-		<id column="BSIF_ENT_ID" property="BSIF_ENT_ID" />				
+		<id column="BSIF_ENT_ID" property="BSIF_ENT_ID" />
 	</resultMap>
-	
-	<resultMap type="HashMap" id="SubjectAreaMap" >
-		<id column="STRU_ID" property="STRU_ID" />
-		<id column="ROOT_STRU_ID" property="ROOT_STRU_ID" />
-		<id column="UPR_STRU_ID" property="UPR_STRU_ID" />
-		<id column="STRU_PATH_NM" property="STRU_PATH_NM" />
-		<id column="ROOT_STRU_PATH_NM" property="ROOT_STRU_PATH_NM" />
-		<id column="UPR_STRU_PATH_NM" property="UPR_STRU_PATH_NM" />
-		<id column="STRU_NM" property="STRU_NM" />
-	</resultMap>
-
-	<select id="getStndListdao" resultMap="StndMap">
-		     SELECT B.BSIF_ID                                                    
-             , MD_ETC_V5.GET_AREA_PATH_NM(B.BSIF_STRU_ID, ' > ') MDL_PATH   
-             , B.BSIF_SCMA                                                  
-             , B.BSIF_ENT_NM                                                
-             , B.BSIF_TBL_NM                                                
-             , B.BSIF_CLSS_CD                                               
-             , B.BSIF_SYS_CD                                                
-             , B.BSIF_SVC_CD                                                
-             , B.MDMS_YN                                                    
-             , B.BASE_INFO_DSCR                                             
-             , DO.DEPT_ID AS OWNER_DEPT_ID                                                  
-             , DOD.DEPT_NM AS OWNER_DEPT_NM                                                 
-             , DOU.LOGIN_ID AS OWNER_DEPT_HEAD_EMP_ID                                                 
-             , DOU.USER_NM AS OWNER_DEPT_HEAD_EMP_NM                            
-             , UOU.LOGIN_ID AS OWNER_DEPT_MNDT_EMP_ID                                            
-             , UOU.USER_NM AS OWNER_DEPT_MNDT_EMP_NM                            
-             , DU.VAL AS ITSM_EMP_ID                                    
-             , DUU.USER_NM AS ITSM_EMP_NM                                 
+	<select id="getBsifListDAO" resultMap="StndMap">
+        /* com.encore.apim.dao.ApimDao.getBsifListDAO */
+        SELECT B.BSIF_ID
+             , MD_ETC_V5.GET_AREA_PATH_NM(B.BSIF_STRU_ID, ' > ') MDL_PATH
+             , B.BSIF_SCMA
+             , B.BSIF_ENT_NM
+             , B.BSIF_TBL_NM
+             , B.BSIF_CLSS_CD
+             , B.BSIF_SYS_CD
+             , B.BSIF_SVC_CD
+             , B.MDMS_YN
+             , B.BASE_INFO_DSCR
+             , DO.DEPT_ID AS OWNER_DEPT_ID
+             , DOD.DEPT_NM AS OWNER_DEPT_NM
+             , DOU.LOGIN_ID AS OWNER_DEPT_HEAD_EMP_ID
+             , DOU.USER_NM AS OWNER_DEPT_HEAD_EMP_NM
+             , UOU.LOGIN_ID AS OWNER_DEPT_MNDT_EMP_ID
+             , UOU.USER_NM AS OWNER_DEPT_MNDT_EMP_NM
+             , DU.VAL AS ITSM_EMP_ID
+             , DUU.USER_NM AS ITSM_EMP_NM
              , (SELECT MIN(B.AVAL_ST_DT)
                   FROM TB_BSIF_TRGT_BAS
-                 WHERE BSIF_ID = B.BSIF_ID) AS REG_DT                       
-             , B.AVAL_ST_DT AS MOD_DT                                      
-             , B.BSIF_STRU_ID                                              
-             , B.BSIF_MDL_ID                                                
-             , B.BSIF_ENT_ID                                               
+                 WHERE BSIF_ID = B.BSIF_ID) AS REG_DT
+             , B.AVAL_ST_DT AS MOD_DT
+             , B.BSIF_STRU_ID
+             , B.BSIF_MDL_ID
+             , B.BSIF_ENT_ID
+             , COUNT(1) OVER() AS TOTAL_ROW_COUNT
           FROM TB_BSIF_TRGT_BAS B
           LEFT OUTER JOIN TB_BSIF_OWN_BAS DO
             ON DO.BSIF_INHE_ID = B.BSIF_ID
@@ -100,19 +108,29 @@
            AND B.AVAL_END_DT = '99991231235959'
          ORDER BY B.BSIF_ENT_NM
 	</select>
-	
-	<select id="getSubjectAreaListdao" resultMap="SubjectAreaMap">
-        SELECT A.STRU_ID                                                                                                        
-             , (CONNECT_BY_ROOT A.STRU_ID) AS ROOT_STRU_ID                                                                      
-             , DECODE(A.UPR_STRU_ID, 'ROOT', A.STRU_ID, A.UPR_STRU_ID) AS UPR_STRU_ID                                           
-             , MD_ETC_V5.GET_AREA_PATH_NM(A.STRU_ID, ' > ') AS STRU_PATH_NM                                                     
-             , MD_ETC_V5.GET_AREA_PATH_NM(CONNECT_BY_ROOT A.STRU_ID, ' > ') AS ROOT_STRU_PATH_NM                                
-             , MD_ETC_V5.GET_AREA_PATH_NM(DECODE(A.UPR_STRU_ID, 'ROOT', A.STRU_ID, A.UPR_STRU_ID), ' > ') AS UPR_STRU_PATH_NM   
-             , A.STRU_NM                                                                                                        
+
+	<resultMap type="HashMap" id="SubjectAreaMap">
+		<id column="STRU_ID" property="STRU_ID" />
+		<id column="ROOT_STRU_ID" property="ROOT_STRU_ID" />
+		<id column="UPR_STRU_ID" property="UPR_STRU_ID" />
+		<id column="STRU_PATH_NM" property="STRU_PATH_NM" />
+		<id column="ROOT_STRU_PATH_NM" property="ROOT_STRU_PATH_NM" />
+		<id column="UPR_STRU_PATH_NM" property="UPR_STRU_PATH_NM" />
+		<id column="STRU_NM" property="STRU_NM" />
+	</resultMap>
+	<select id="getSubjectAreaListDAO" resultMap="SubjectAreaMap">
+        /* com.encore.apim.dao.ApimDao.getSubjectAreaListDAO */
+        SELECT A.STRU_ID
+             , (CONNECT_BY_ROOT A.STRU_ID) AS ROOT_STRU_ID
+             , DECODE(A.UPR_STRU_ID, 'ROOT', A.STRU_ID, A.UPR_STRU_ID) AS UPR_STRU_ID
+             , MD_ETC_V5.GET_AREA_PATH_NM(A.STRU_ID, ' > ') AS STRU_PATH_NM
+             , MD_ETC_V5.GET_AREA_PATH_NM(CONNECT_BY_ROOT A.STRU_ID, ' > ') AS ROOT_STRU_PATH_NM
+             , MD_ETC_V5.GET_AREA_PATH_NM(DECODE(A.UPR_STRU_ID, 'ROOT', A.STRU_ID, A.UPR_STRU_ID), ' > ') AS UPR_STRU_PATH_NM
+             , A.STRU_NM
           FROM (SELECT DISTINCT C.STRU_ID
-                     , NVL(C.UPR_STRU_ID, 'ROOT') UPR_STRU_ID
+                     , NVL(C.UPR_STRU_ID, 'ROOT') AS UPR_STRU_ID
                      , C.STRU_NM
-                     , DECODE(NVL(C.UPR_STRU_ID, ''), '', NULL, O.SEQ) SEQ
+                     , DECODE(NVL(C.UPR_STRU_ID, ''), '', NULL, O.SEQ) AS SEQ
                   FROM DAM_MDL_CONTAINER C
                   LEFT OUTER JOIN DAM_MDL_INFO I
                     ON I.MDL_ID = C.MDL_ID
@@ -127,8 +145,8 @@
                    AND O.AVAL_END_DT = '99991231235959'
                  WHERE C.AVAL_END_DT = '99991231235959') A
          START WITH UPR_STRU_ID = 'ROOT'
-        CONNECT BY PRIOR STRU_ID = UPR_STRU_ID
+       CONNECT BY PRIOR STRU_ID = UPR_STRU_ID
          ORDER SIBLINGS BY SEQ
-    </select>
+	</select>
 
 </mapper>

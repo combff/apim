@@ -1,4 +1,4 @@
-package com.encore.rest.vo;
+package com.encore.apim.vo;
 
 import lombok.Getter;
 import lombok.Setter;

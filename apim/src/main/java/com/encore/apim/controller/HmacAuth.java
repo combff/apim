@@ -1,4 +1,4 @@
-package com.encore.rest.controller;
+package com.encore.apim.controller;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -11,16 +11,19 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 
 @Component
 public class HmacAuth {
 
+	private final static Logger logger = LoggerFactory.getLogger(HmacAuth.class);
+	
 	protected final String SIGNATURE_ALGORITHM = "HmacSHA512";
 	
-	@Value("${key}")
+	@Value("${hmac.key}")
 	protected String SECRET;
 	
 	protected long baseTimeStamp = 10 * 60 * 1000; //msec
@@ -28,8 +31,7 @@ public class HmacAuth {
 	protected final String ERR_MESSAGE_TIMEOUT = "Request is not valid(timeout)";
 	protected final String ERR_SERVER_NAME = "EDIS";
 	
-	@SuppressWarnings("unchecked")
-	protected void hmanAuth(HttpServletRequest request) throws Exception {
+	protected void hmacAuth(HttpServletRequest request) throws Exception {
 		String xAuthTime = StringUtils.defaultString(request.getHeader("X-AuthorizationTime"), "");
 		String xAppName = StringUtils.defaultString(request.getHeader("X-APP-NAME"), "");
 		String xGTId = StringUtils.defaultString(request.getHeader("X-Global-Transaction-ID"), "");
@@ -38,11 +40,11 @@ public class HmacAuth {
 		String checkHash = getHmacSignature(message.getBytes());
 		
 		if (!checkHash.equals(signature)) {
-			System.out.println("xAuthorizationTime: " + xAuthTime);
-			System.out.println("xAppName: " + xAppName);
-			System.out.println("X-Global-Transaction-ID: " + xGTId);
-			System.out.println("signature: " + signature);
-			System.out.println("check Hmac Hash: " + checkHash);
+			logger.info("xAuthorizationTime: " + xAuthTime);
+			logger.info("xAppName: " + xAppName);
+			logger.info("X-Global-Transaction-ID: " + xGTId);
+			logger.info("signature: " + signature);
+			logger.info("check Hmac Hash: " + checkHash);
 			throw new RuntimeException(ERR_MESSAGE_INVALID_SIGNATURE);
 		}
 		
@@ -50,8 +52,8 @@ public class HmacAuth {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmdd'T'HHmmssZ");
 			String nowDateStr = dateFormat.format(new Date());
 			
-			System.out.println("xAuthorizationTime: " + xAuthTime );
-			System.out.println("current Time: " + nowDateStr );
+			logger.info("xAuthorizationTime: " + xAuthTime );
+			logger.info("current Time: " + nowDateStr );
 			throw new RuntimeException(ERR_MESSAGE_TIMEOUT);
 		}
 	}
