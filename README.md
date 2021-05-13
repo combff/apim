@@ -1,6 +1,6 @@
 # apim
 
-hashed mac(hmac) -> base64 인코딩
+Hashed mac(Hmac) -> base64 인코딩
 <br>hmac.use.yn : 인증 사용할 것인가
 
 mybatis -> oracle 연동
